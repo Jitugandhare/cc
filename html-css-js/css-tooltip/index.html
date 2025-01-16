@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+        }
+
+        #container {
+
+            margin-top: 180px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+
+        }
+
+        button {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            cursor: pointer;
+            height: 50px;
+            width: 150px;
+            background-color: #1c6350;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: absolute;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background-color: black;
+            color: white;
+            border-radius: 5px;
+            padding: 5px;
+            font-size: 12px;
+        }
+
+        button:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Tooltip positioning */
+        .tooltip.left {
+            left: -120%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-right: 10px;
+        }
+
+        .tooltip.top {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 10px;
+        }
+
+        .tooltip.bottom {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 10px;
+        }
+
+        .tooltip.right {
+            right: -120%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 10px;
+        }
+    </style>
+    <title>CSS Tooltip</title>
+</head>
+
+<body>
+    <div id="container">
+        <button class="Left">
+            Left
+            <div class="tooltip left">Left </div>
+        </button>
+        <button class="Top">
+            Top
+            <div class="tooltip top"> Top</div>
+        </button>
+        <button class="Bottom">
+            Bottom
+            <div class="tooltip bottom"> Bottom</div>
+        </button>
+        <button class="Right">
+            Right
+            <div class="tooltip right"> Right</div>
+        </button>
+    </div>
+</body>
+
+</html>
