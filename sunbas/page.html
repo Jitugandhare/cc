@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Form Designer</title>
+    <style>
+        body { font-family: Arial, sans-serif; transition: background 0.3s, color 0.3s; }
+        .container { display: flex; }
+        .sidebar { width: 200px; padding: 10px; background: #f4f4f4; }
+        .form-area { flex-grow: 1; padding: 20px; border: 1px solid #ddd; min-height: 300px; }
+        .form-element { padding: 10px; border: 1px solid #ccc; margin: 5px; cursor: grab; background: #fff; }
+        .dark-mode { background: #333; color: #fff; }
+        .dark-mode .sidebar { background: #555; }
+        button { padding: 5px 10px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <button onclick="addElement('input')">Add Input</button>
+            <button onclick="addElement('select')">Add Select</button>
+            <button onclick="addElement('textarea')">Add Textarea</button>
+            <button onclick="addElement('checkbox')">Add Checkbox</button>
+            <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+            <button onclick="saveForm()">Save Form</button>
+            <button onclick="previewForm()">Preview</button>
+        </div>
+        <div class="form-area" id="formArea"></div>
+    </div>
+
+    <script>
+        let formElements = [];
+
+        function addElement(type) {
+            const id = Date.now().toString();
+            let elementHTML = `<div class="form-element" draggable="true" ondragstart="drag(event)" id="${id}">
+                <label contenteditable="true">${type.toUpperCase()}</label>`;
+            
+            if (type === 'input' || type === 'textarea') {
+                elementHTML += `<input type="${type}" placeholder="Enter text" />`;
+            } else if (type === 'select') {
+                elementHTML += `<select><option>Option 1</option><option>Option 2</option></select>`;
+            } else if (type === 'checkbox') {
+                elementHTML += `<input type="checkbox" />`;
+            }
+
+            elementHTML += `<button onclick="removeElement('${id}')">Delete</button></div>`;
+            document.getElementById("formArea").innerHTML += elementHTML;
+        }
+
+        function removeElement(id) {
+            document.getElementById(id).remove();
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            event.target.appendChild(draggedElement);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function saveForm() {
+            const formJSON = [];
+            document.querySelectorAll(".form-element").forEach(el => {
+                formJSON.push({
+                    id: el.id,
+                    type: el.children[1].tagName.toLowerCase(),
+                    label: el.children[0].innerText
+                });
+            });
+            console.log(JSON.stringify(formJSON, null, 2));
+        }
+
+        function previewForm() {
+            const previewWindow = window.open("", "Preview", "width=400,height=600");
+            let formHTML = "<form>";
+            document.querySelectorAll(".form-element").forEach(el => {
+                formHTML += `<div><label>${el.children[0].innerText}</label>${el.children[1].outerHTML}</div>`;
+            });
+            formHTML += "</form><button onclick='copyHTML()'>Copy HTML</button>";
+            previewWindow.document.write(formHTML + "<script>function copyHTML() { navigator.clipboard.writeText(document.querySelector('form').outerHTML); alert('Copied!'); }<\/script>");
+        }
+    </script>
+</body>
+</html>

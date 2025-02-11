@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Designer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background: #e0e0e0;
+            padding: 20px;
+        }
+        .main {
+            flex: 1;
+            padding: 20px;
+        }
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .component {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .form-element {
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .delete-btn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            cursor: pointer;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Components</h3>
+            <div class="component" onclick="addElement('input')">Input <b>+</b></div>
+            <div class="component" onclick="addElement('select')">Select <b>+</b></div>
+            <div class="component" onclick="addElement('textarea')">Textarea <b>+</b></div>
+        </div>
+        <div class="main">
+            <div class="form-container" id="form"></div>
+            <button onclick="saveForm()">Save</button>
+        </div>
+    </div>
+    <script>
+        function addElement(type) {
+            let form = document.getElementById("form");
+            let div = document.createElement("div");
+            div.className = "form-element";
+            let label = document.createElement("label");
+            let input;
+            if (type === "input") {
+                label.innerText = "Sample Label";
+                input = document.createElement("input");
+                input.type = "text";
+            } else if (type === "select") {
+                label.innerText = "Select";
+                input = document.createElement("select");
+                let option = document.createElement("option");
+                option.innerText = "Sample option";
+                input.appendChild(option);
+            } else if (type === "textarea") {
+                label.innerText = "Text area";
+                input = document.createElement("textarea");
+            }
+            input.placeholder = "Sample placeholder";
+            div.appendChild(label);
+            div.appendChild(input);
+            let deleteBtn = document.createElement("span");
+            deleteBtn.innerText = "🗑";
+            deleteBtn.className = "delete-btn";
+            deleteBtn.onclick = function() { form.removeChild(div); };
+            div.appendChild(deleteBtn);
+            form.appendChild(div);
+        }
+        function saveForm() {
+            let formElements = document.querySelectorAll(".form-element");
+            let formData = [];
+            formElements.forEach(el => {
+                let label = el.querySelector("label").innerText;
+                let input = el.querySelector("input, select, textarea");
+                formData.push({ label, type: input.tagName.toLowerCase(), placeholder: input.placeholder });
+            });
+            console.log(JSON.stringify(formData));
+            alert("Form Saved!");
+        }
+    </script>
+</body>
+</html>
