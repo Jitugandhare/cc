@@ -3,11 +3,19 @@ body {
     margin: 0;
     padding: 0;
     background-color: #e7e2e2;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
-.cont{
+
+.dark-mode {
+    background-color: #333;
+    color: white;
+}
+
+.cont {
     display: flex;
     background-color: #f1efef;
 }
+
 #nav {
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     background-color: white;
@@ -25,6 +33,7 @@ body {
     width: 25%;
     height: 700px;
 }
+
 .component {
     display: flex;
     justify-content: space-between;
@@ -34,6 +43,7 @@ body {
     cursor: pointer;
     border-radius: 5px;
 }
+
 .main {
     flex: 1;
     padding: 20px;
@@ -55,8 +65,17 @@ body {
     border: 1px solid #ddd;
     border-radius: 5px;
     background: #f9f9f9;
-    cursor: move;
+    cursor: pointer; /* Ensure pointer cursor */
 }
+
+.form-element[draggable="true"] {
+    cursor: grab; /* Cursor should be grab when the element is draggable */
+}
+
+.form-element[draggable="true"]:active {
+    cursor: grabbing; /* When the element is being dragged, cursor should be grabbing */
+}
+
 .delete-btn {
     position: absolute;
     right: 5px;
@@ -64,7 +83,39 @@ body {
     cursor: pointer;
     color: red;
 }
-input, select, textarea {
+
+input,
+select,
+textarea {
     width: 100%;
     margin-top: 5px;
+}
+
+.preview-container {
+    background: white;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.copy-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.copy-btn:disabled {
+    background-color: #888;
+    cursor: not-allowed;
+}
+
+.buton {
+    padding: 5px 10px;
+    margin: 5px;
+    cursor: pointer;
 }

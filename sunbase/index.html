@@ -4,12 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #e7e2e2;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .dark-mode {
@@ -71,7 +73,18 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             background: #f9f9f9;
-            cursor: move;
+            cursor: pointer;
+            /* Ensure pointer cursor */
+        }
+
+        .form-element[draggable="true"] {
+            cursor: grab;
+            /* Cursor should be grab when the element is draggable */
+        }
+
+        .form-element[draggable="true"]:active {
+            cursor: grabbing;
+            /* When the element is being dragged, cursor should be grabbing */
         }
 
         .delete-btn {
@@ -82,9 +95,40 @@
             color: red;
         }
 
-        input, select, textarea {
+        input,
+        select,
+        textarea {
             width: 100%;
             margin-top: 5px;
+        }
+
+        .preview-container {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .copy-btn:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        .buton {
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
         }
     </style>
     <title>Form Designer</title>
@@ -99,154 +143,125 @@
         <div class="cont">
             <div id="left-side">
                 <h3>Components</h3>
-                <div class="component" onclick="addElement('input')">Input <b>+</b></div>
-                <div class="component" onclick="addElement('select')">Select <b>+</b></div>
-                <div class="component" onclick="addElement('textarea')">Textarea <b>+</b></div>
-                <div class="component" onclick="addElement('checkbox')">Checkbox <b>+</b></div>
-                <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+                <div class="component" onclick="addElement('Input')">Input <b>+</b></div>
+                <div class="component" onclick="addElement('Select')">Select <b>+</b></div>
+                <div class="component" onclick="addElement('Textarea')">Textarea <b>+</b></div>
+                <div class="component" onclick="addElement('Checkbox')">Checkbox <b>+</b></div>
+                <button class="buton" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+                <button class="buton" onclick="previewForm()">Preview</button>
             </div>
             <div class="main">
-                <div id="right-side">
-                    <div class="form-container" id="form"></div>
-                </div>
+                <div class="form-container" id="form" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
             </div>
         </div>
     </div>
 
     <script>
-        let formElements = [
-            {
-                "id": "c0ac49c5-871e-4c72-a878-251de465e6b4",
-                "type": "input",
-                "label": "Sample Input",
-                "placeholder": "Sample placeholder"
-            },
-            {
-                "id": "146e69c2-1630-4a27-9d0b-f09e463a66e4",
-                "type": "select",
-                "label": "Sample Select",
-                "options": ["Sample Option", "Sample Option", "Sample Option"]
-            },
-            {
-                "id": "45002ecf-85cf-4852-bc46-529f94a758f5",
-                "type": "textarea",
-                "label": "Sample Textarea",
-                "placeholder": "Sample Placeholder"
-            },
-            {
-                "id": "680cff8d-c7f9-40be-8767-e3d6ba420952",
-                "type": "checkbox",
-                "label": "Sample Checkbox"
-            }
-        ];
+        let formElements = [];
 
-        // Dark Mode Toggle
+        function addElement(type) {
+            const id = Date.now().toString();
+            let elementHTML = `<div class="form-element" draggable="true" ondragstart="drag(event)" id="${id}">
+                <label contenteditable="true"> ${type}</label>`;
+
+            if (type === 'Input' || type === 'Textarea') {
+                elementHTML += `<input type="${type}" placeholder="Enter text" contenteditable="true" />`;
+            } else if (type === 'Select') {
+                elementHTML += `<select contenteditable="true"><option>Option 1</option><option>Option 2</option></select>
+                                <button onclick="addOption('${id}')">Add Option</button>
+                                <button onclick="removeOption('${id}')">Remove Option</button>`;
+            } else if (type === 'Checkbox') {
+                elementHTML += `<input type="checkbox" contenteditable="true" />`;
+            }
+
+            elementHTML += `<button class="delete-btn" onclick="removeElement('${id}')">Delete</button></div>`;
+            document.getElementById("form").innerHTML += elementHTML;
+            formElements.push({ id, type });
+        }
+
+        function removeElement(id) {
+            const element = document.getElementById(id);
+            element.remove();
+            formElements = formElements.filter(e => e.id !== id);
+        }
+
+        function addOption(id) {
+            const selectElement = document.getElementById(id).querySelector('select');
+            const optionText = prompt("Enter option text:");
+            if (optionText) {
+                const newOption = document.createElement("option");
+                newOption.textContent = optionText;
+                selectElement.appendChild(newOption);
+            }
+        }
+
+        function removeOption(id) {
+            const selectElement = document.getElementById(id).querySelector('select');
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (selectedOption) {
+                selectElement.removeChild(selectedOption);
+            } else {
+                alert("Please select an option to delete");
+            }
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            const target = event.target.closest('.form-element');
+            if (target && target !== draggedElement) {
+                document.getElementById("form").insertBefore(draggedElement, target);
+            }
+        }
+
         function toggleDarkMode() {
             document.body.classList.toggle("dark-mode");
         }
 
-        // Add new elements to the form
-        function addElement(type) {
-            let newElement = {
-                id: generateId(),
-                type: type,
-                label: type.charAt(0).toUpperCase() + type.slice(1),
-                placeholder: type === 'textarea' || type === 'input' ? 'Enter text' : '',
-                options: type === 'select' ? ['Option 1', 'Option 2'] : [],
-            };
-            formElements.push(newElement);
-            renderForm();
-        }
-
-        // Generate unique ID for elements
-        function generateId() {
-            return '_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        // Render the form elements
-        function renderForm() {
-            const formContainer = document.getElementById("form");
-            formContainer.innerHTML = '';
-            formElements.forEach(element => {
-                const formElementDiv = document.createElement('div');
-                formElementDiv.classList.add('form-element');
-                formElementDiv.setAttribute('draggable', 'true');
-                formElementDiv.setAttribute('data-id', element.id);
-                formElementDiv.innerHTML = `
-                <label>${element.label}</label>
-                ${generateElementInput(element)}
-                <button class="delete-btn" onclick="deleteElement('${element.id}')">X</button>
-            `;
-                formContainer.appendChild(formElementDiv);
-            });
-
-            // Add drag and drop functionality
-            const formElementsDivs = document.querySelectorAll('.form-element');
-            formElementsDivs.forEach(el => {
-                el.addEventListener('dragstart', onDragStart);
-                el.addEventListener('dragover', onDragOver);
-                el.addEventListener('drop', onDrop);
-            });
-        }
-
-        // Generate the corresponding input HTML based on element type
-        function generateElementInput(element) {
-            switch (element.type) {
-                case 'input':
-                    return `<input type="text" placeholder="${element.placeholder}" />`;
-                case 'textarea':
-                    return `<textarea placeholder="${element.placeholder}"></textarea>`;
-                case 'select':
-                    let optionsHTML = element.options.map(option => `<option>${option}</option>`).join('');
-                    return `<select>${optionsHTML}</select>`;
-                case 'checkbox':
-                    return `<input type="checkbox" />`;
-            }
-        }
-
-        // Handle deleting an element
-        function deleteElement(id) {
-            formElements = formElements.filter(el => el.id !== id);
-            renderForm();
-        }
-
-        // Save the form data as JSON
         function saveForm() {
-            console.log(JSON.stringify(formElements, null, 2));
+            const formJSON = [];
+            document.querySelectorAll(".form-element").forEach(el => {
+                const elementType = el.querySelector('input') ? 'input' :
+                    el.querySelector('textarea') ? 'textarea' :
+                        el.querySelector('select') ? 'select' :
+                            'checkbox';
+
+                let elementData = { id: el.id, type: elementType, label: el.querySelector('label').innerText };
+
+                if (elementType === 'input' || elementType === 'textarea') {
+                    elementData.placeholder = el.querySelector('input').placeholder;
+                }
+
+                if (elementType === 'select') {
+                    elementData.options = [...el.querySelector('select').options].map(option => option.text);
+                }
+
+                formJSON.push(elementData);
+            });
+            console.log(JSON.stringify(formJSON, null, 2));
         }
 
-        // Drag and drop functionality
-        let draggedElement = null;
-
-        function onDragStart(e) {
-            draggedElement = e.target;
+        function previewForm() {
+            const previewWindow = window.open("", "Preview", "width=400,height=600");
+            let formHTML = "<form>";
+            document.querySelectorAll(".form-element").forEach(el => {
+                formHTML += `<div><label>${el.querySelector('label').innerText}</label>${el.querySelector('input') ? el.querySelector('input').outerHTML :
+                    el.querySelector('textarea') ? el.querySelector('textarea').outerHTML :
+                        el.querySelector('select') ? el.querySelector('select').outerHTML :
+                            el.querySelector('input[type=checkbox]').outerHTML}</div>`;
+            });
+            formHTML += "</form><button onclick='copyHTML()'>Copy HTML</button>";
+            previewWindow.document.write(formHTML + "<script>function copyHTML() { navigator.clipboard.writeText(document.querySelector('form').outerHTML); alert('Copied!'); }<\/script>");
         }
-
-        function onDragOver(e) {
-            e.preventDefault();
-        }
-
-        function onDrop(e) {
-            e.preventDefault();
-            const droppedElement = e.target.closest('.form-element');
-            if (!droppedElement || draggedElement === droppedElement) return;
-
-            const draggedElementId = draggedElement.getAttribute('data-id');
-            const droppedElementId = droppedElement.getAttribute('data-id');
-
-            const draggedElementIndex = formElements.findIndex(el => el.id === draggedElementId);
-            const droppedElementIndex = formElements.findIndex(el => el.id === droppedElementId);
-
-            // Swap the elements in the formElements array
-            const temp = formElements[draggedElementIndex];
-            formElements[draggedElementIndex] = formElements[droppedElementIndex];
-            formElements[droppedElementIndex] = temp;
-
-            renderForm();
-        }
-
-        // Initially render the form based on the sample JSON data
-        renderForm();
     </script>
 </body>
 
