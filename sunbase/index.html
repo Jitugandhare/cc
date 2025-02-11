@@ -1,105 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Designer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #e7e2e2;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .dark-mode {
-            background-color: #333;
-            color: white;
-        }
-
-        #nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .container {
-            display: flex;
-            height: calc(100vh - 50px);
-        }
-
-        #left-side {
-            width: 25%;
-            background: white;
-            padding: 15px;
-            box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .component {
-            display: flex;
-            justify-content: space-between;
-            background: white;
-            padding: 10px;
-            margin: 10px 0;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .main {
-            flex: 1;
-            padding: 20px;
-            background-color: rgb(233, 229, 229);
-        }
-
-        .form-container {
-            background: white;
-            padding: 20px;
-            min-height: 500px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-element {
-            position: relative;
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: #f9f9f9;
-            cursor: grab;
-        }
-
-        .delete-btn {
-            position: absolute;
-            right: 5px;
-            top: 5px;
-            cursor: pointer;
-            color: red;
-            background: none;
-            border: none;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            margin-top: 5px;
-        }
-
-        .button {
-            padding: 8px 12px;
-            margin: 5px;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-    </style>
+  <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
     <div id="nav">
         <span>Form Designer</span>
@@ -127,11 +35,16 @@
                 <label contenteditable="true">${type}</label>`;
 
             if (type === 'Input') {
-                elementHTML += `<input type="text" placeholder="Enter text" />`;
+                elementHTML += `<input type="text" placeholder="Enter text" oninput="updatePlaceholder(this)" contenteditable="true" />`;
             } else if (type === 'Textarea') {
-                elementHTML += `<textarea placeholder="Enter text"></textarea>`;
+                elementHTML += `<textarea placeholder="Enter text" oninput="updatePlaceholder(this)" contenteditable="true"></textarea>`;
             } else if (type === 'Select') {
-                elementHTML += `<select><option>Option 1</option><option>Option 2</option></select>`;
+                elementHTML += `<select id="select-${id}">
+                                    <option>Option 1</option>
+                                    <option>Option 2</option>
+                                </select>
+                                <button onclick="addOption('${id}')">Add Option</button>
+                                <button onclick="removeOption('${id}')">Remove Option</button>`;
             } else if (type === 'Checkbox') {
                 elementHTML += `<input type="checkbox" />`;
             }
@@ -164,7 +77,15 @@
         }
 
         function saveForm() {
-            alert("Form saved successfully!");
+            const formJSON = [];
+            document.querySelectorAll(".form-element").forEach(el => {
+                formJSON.push({
+                    id: el.id,
+                    type: el.children[1].tagName.toLowerCase(),
+                    label: el.children[0].innerText
+                });
+            });
+            console.log(JSON.stringify(formJSON, null, 2));
         }
 
         function previewForm() {
@@ -176,6 +97,21 @@
             formHTML += "</form>";
             previewWindow.document.write(formHTML);
         }
+
+        function addOption(id) {
+            const select = document.getElementById(`select-${id}`);
+            const option = document.createElement("option");
+            option.text = `Option ${select.options.length + 1}`;
+            select.add(option);
+        }
+
+        function removeOption(id) {
+            const select = document.getElementById(`select-${id}`);
+            if (select.options.length > 0) {
+                select.remove(select.options.length - 1);
+            }
+        }
     </script>
 </body>
+
 </html>
