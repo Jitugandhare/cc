@@ -1,0 +1,16 @@
+{
+  "todos": [
+    {
+      "id": "e8e0",
+      "text": "complete scrum"
+    },
+    {
+      "id": "444c",
+      "text": "learn react"
+    },
+    {
+      "id": "0838",
+      "text": "learn node js"
+    }
+  ]
+}

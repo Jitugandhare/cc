@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .todo-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        #todo-form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #todo-input {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #todo-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .todo-item button {
+            background-color: #ff6b6b;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="todo-container">
+        <h1>To-Do App</h1>
+        <form id="todo-form">
+            <input type="text" id="todo-input" placeholder="Enter a new task" required />
+            <button type="submit">Add</button>
+        </form>
+        <ul id="todo-list"></ul>
+    </div>
+    <script>
+        const apiUrl = 'http://localhost:3000/todos';
+
+        async function fetchTodos() {
+            const response = await fetch(apiUrl);
+            const todos = await response.json();
+            const todoList = document.getElementById('todo-list');
+            todoList.innerHTML = '';
+            todos.forEach(todo => {
+                const listItem = document.createElement('li');
+                listItem.className = 'todo-item';
+                listItem.innerHTML = `
+                    ${todo.text}
+                    <button onclick="deleteTodo(${todo.id})">Delete</button>
+                `;
+                todoList.appendChild(listItem);
+            });
+        }
+
+        async function addTodo(text) {
+            await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text }),
+            });
+            fetchTodos();
+        }
+
+        async function deleteTodo(id) {
+            await fetch(`${apiUrl}/${id}`, {
+                method: 'DELETE',
+            });
+            fetchTodos();
+        }
+
+        document.getElementById('todo-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const input = document.getElementById('todo-input');
+            const text = input.value.trim();
+            if (text) {
+                addTodo(text);
+                input.value = '';
+            }
+        });
+
+        fetchTodos();
+    </script>
+</body>
+</html>
