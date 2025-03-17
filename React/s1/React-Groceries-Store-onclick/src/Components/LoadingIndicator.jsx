@@ -1,5 +1,13 @@
+import { useState } from "react";
+
 const LoadingIndicator = () => {
-  return <div className="loading-indicator"></div>;
+  
+
+ 
+
+  return <div className="loading-indicator">
+     <h1>Loading...</h1>
+  </div>;
 };
 
 export default LoadingIndicator;
