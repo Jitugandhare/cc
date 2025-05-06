@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Notifications</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Notifications</h2>
+  <ul id="notificationList"></ul>
+  <script src="app.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    async function loadNotifications() {
+      try {
+        const res = await fetch('http://localhost:5000/api/notification', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const notifications = await res.json();
+        const notificationList = document.getElementById('notificationList');
+        notificationList.innerHTML = '';
+        notifications.forEach((note) => {
+          const li = document.createElement('li');
+          li.textContent = `${note.message} - ${note.isRead ? 'Read' : 'Unread'}`;
+          notificationList.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while fetching notifications.');
+      }
+    }
+
+    loadNotifications();
+  </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat</title>
+  <style>
+    /* Reset some basic styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body Styling */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f7f6;
+      color: #333;
+      padding: 20px;
+    }
+
+    /* Header */
+    h2 {
+      text-align: center;
+      font-size: 2rem;
+      color: #4a90e2;
+      margin-bottom: 20px;
+    }
+
+    /* Chat List Styling */
+    #chatList {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    #chatList li {
+      background-color: #fff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    #chatList li:nth-child(odd) {
+      background-color: #e4e7eb;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+      }
+
+      #chatList li {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Chat</h2>
+  <ul id="chatList"></ul>
+  <script src="app.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    async function loadChats() {
+      try {
+        const res = await fetch('http://localhost:5000/api/chat', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const chats = await res.json();
+        const chatList = document.getElementById('chatList');
+        chatList.innerHTML = '';
+        chats.forEach((chat) => {
+          const li = document.createElement('li');
+          li.textContent = `${chat.sender.name}: ${chat.message}`;
+          chatList.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while fetching chats.');
+      }
+    }
+
+    loadChats();
+  </script>
+</body>
+</html>

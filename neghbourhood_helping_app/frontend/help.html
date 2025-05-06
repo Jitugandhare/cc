@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Help Requests</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    form {
+      margin-bottom: 30px;
+    }
+
+    input, textarea, button {
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      width: 300px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      color: #333;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    h2 {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>Create Help Request</h2>
+  <form id="helpForm">
+    <input type="text" name="category" placeholder="Category" required />
+    <textarea name="description" placeholder="Description" required></textarea>
+    <input type="text" name="location" placeholder="Location" required />
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2>Existing Help Requests</h2>
+  <table id="helpTable">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Location</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="helpList"></tbody>
+  </table>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('helpForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch('http://localhost:5000/api/help', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          alert('Help request created.');
+          e.target.reset();
+          loadHelpRequests();
+        } else {
+          alert(result.message || 'Failed to create help request.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while creating help request.');
+      }
+    });
+
+    async function loadHelpRequests() {
+      try {
+        const res = await fetch('http://localhost:5000/api/help', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        const helpRequests = await res.json();
+        const helpList = document.getElementById('helpList');
+        helpList.innerHTML = '';  // Clear the table body
+
+        helpRequests.forEach((req) => {
+          const tr = document.createElement('tr');
+
+          const userName = req.userId?.name || 'Anonymous';
+          const category = req.category || 'No category';
+          const description = req.description || 'No description';
+          const location = req.location || 'Unknown';
+          const status = req.status || 'open';
+
+          tr.innerHTML = `
+            <td>${userName}</td>
+            <td>${category}</td>
+            <td>${description}</td>
+            <td>${location}</td>
+            <td>${status}</td>
+          `;
+
+          helpList.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while fetching help requests.');
+      }
+    }
+
+    loadHelpRequests();
+  </script>
+</body>
+</html>
